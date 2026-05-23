@@ -102,7 +102,8 @@ function LoadScriptDemo() {
     };
   }, [isFullTab]);
 
-  // Predefined library presetsconst presets = {
+  // Predefined library presets
+  const presets = {
     classic: [
       { name: 'Globe.gl', url: 'https://unpkg.com/globe.gl', global: 'Globe', type: 'script' },
       { name: 'Three.js', url: 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js', global: 'THREE', type: 'script' },
