@@ -57,7 +57,7 @@ async function loadScript(dc, src, options = {}) {
   }
 
   const adapter = dc.app.vault.adapter;
-  const cacheDir = ".datacore/script_cache";
+  const cacheDir = dc.resolvePath("LOAD SCRIPT/data/cache/scripts");
   const isUrl = /^https?:\/\//.test(src);
 
   // --- GLOBAL DEDUPLICATION CHECK ---
@@ -271,7 +271,7 @@ async function loadMultiple(dc, scripts, parallel = false) {
  * @returns {Promise<string>} A promise that resolves with a local blob URL for the image.
  */
 async function fetchAndCacheImage(dc, url) {
-  const cacheDir = ".datacore/image_cache";
+  const cacheDir = dc.resolvePath("LOAD SCRIPT/data/cache/images");
   const adapter = dc.app.vault.adapter;
 
   const safeFilename = url.replace(/^https?:\/\//, '').replace(/[\/\\?%*:|"<>]/g, '_');
