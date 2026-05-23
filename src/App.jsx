@@ -1145,4 +1145,4 @@ function LoadScriptDemo() {
   );
 }
 
-return { View: LoadScriptDemo };
+return { App: LoadScriptDemo };
