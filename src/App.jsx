@@ -34,6 +34,7 @@ function LoadScriptDemo() {
   const [isFullTab, setIsFullTab] = dc.useState(true);
   const [loadingLibrary, setLoadingLibrary] = dc.useState(null);
   const [loadingProgress, setLoadingProgress] = dc.useState('');
+  const [cachedStatus, setCachedStatus] = dc.useState({});
   
   const containerRef = dc.useRef(null);
   const stateRefs = dc.useRef({}).current;
@@ -102,6 +103,28 @@ function LoadScriptDemo() {
   }, [isFullTab]);
 
   // Predefined library presets
+  // Check which presets are already cached
+  dc.useEffect(() => {
+    const checkCache = async () => {
+      const adapter = dc.app.vault.adapter;
+      const cacheDir = dc.resolvePath("LOAD SCRIPT/data/cache/scripts");
+      const statusObj = {};
+      
+      const allPresets = [...presets.classic, ...presets.esm];
+      for (const lib of allPresets) {
+        if (/^https?:\/\//.test(lib.url)) {
+          const safeFilename = lib.url.replace(/^https?:\/\//, '').replace(/[\/\\?%*:|"<>]/g, '_') + '.js';
+          const cachePath = `${cacheDir}/${safeFilename}`;
+          if (await adapter.exists(cachePath)) {
+            statusObj[lib.url] = true;
+          }
+        }
+      }
+      setCachedStatus(statusObj);
+    };
+    checkCache();
+  }, [dc, presets.classic.length, presets.esm.length]);
+
   const presets = {
     classic: [
       { name: 'Globe.gl', url: 'https://unpkg.com/globe.gl', global: 'Globe', type: 'script' },
@@ -368,7 +391,7 @@ function LoadScriptDemo() {
           fontSize: '13px',
           fontFamily: 'monospace'
         }}>
-          <span style={{ color: '#8b5cf6', fontWeight: 'bold' }}>
+          <span style={{ color: '#a1a1aa', fontWeight: 'bold' }}>
             {lib.global || lib.name}
           </span>
           {explorerPath.map((segment, i) => (
@@ -376,7 +399,7 @@ function LoadScriptDemo() {
               <span style={{ color: '#6b7280' }}> → </span>
               <span 
                 style={{ 
-                  color: '#8b5cf6', 
+                  color: '#a1a1aa', 
                   cursor: 'pointer',
                   textDecoration: 'underline'
                 }}
@@ -393,7 +416,7 @@ function LoadScriptDemo() {
                 marginLeft: 'auto',
                 padding: '4px 8px',
                 fontSize: '11px',
-                backgroundColor: '#8b5cf6',
+                backgroundColor: '#a1a1aa',
                 color: 'white',
                 border: 'none',
                 borderRadius: '3px',
@@ -466,7 +489,7 @@ function LoadScriptDemo() {
                   onMouseEnter={(e) => {
                     if (analysis.isExpandable) {
                       e.currentTarget.style.backgroundColor = '#1a1a1a';
-                      e.currentTarget.style.borderColor = '#8b5cf6';
+                      e.currentTarget.style.borderColor = '#a1a1aa';
                     }
                   }}
                   onMouseLeave={(e) => {
@@ -481,11 +504,11 @@ function LoadScriptDemo() {
                 >
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: 1 }}>
                     {analysis.isExpandable && (
-                      <span style={{ color: '#8b5cf6' }}>▶</span>
+                      <span style={{ color: '#a1a1aa' }}>▶</span>
                     )}
                     <span style={{ color: '#60a5fa' }}>{key}:</span>
                     <span style={{ 
-                      color: analysis.type === 'function' ? '#a78bfa' : 
+                      color: analysis.type === 'function' ? '#d4d4d8' : 
                              analysis.type === 'object' ? '#fb923c' : 
                              analysis.type === 'string' ? '#4ade80' : 
                              '#9ca3af'
@@ -516,7 +539,7 @@ function LoadScriptDemo() {
     padding: '8px 16px',
     backgroundColor: '#1a1a1a',
     color: 'white',
-    border: '1px solid #8b5cf6',
+    border: '1px solid #a1a1aa',
     borderRadius: '4px',
     cursor: 'pointer',
     fontWeight: 'bold',
@@ -524,7 +547,7 @@ function LoadScriptDemo() {
     marginRight: '8px',
     marginBottom: '8px',
     transition: 'all 0.2s ease',
-    boxShadow: '0 0 10px rgba(139, 92, 246, 0.3)'
+    boxShadow: '0 0 10px rgba(161, 161, 170, 0.3)'
   };
 
   const smallButtonStyle = {
@@ -532,8 +555,8 @@ function LoadScriptDemo() {
     padding: '4px 12px',
     fontSize: '11px',
     backgroundColor: '#0a0a0a',
-    border: '1px solid #6b21a8',
-    boxShadow: '0 0 5px rgba(107, 33, 168, 0.2)'
+    border: '1px solid #3f3f46',
+    boxShadow: '0 0 5px rgba(63, 63, 70, 0.2)'
   };
 
   const cardStyle = {
@@ -592,7 +615,7 @@ function LoadScriptDemo() {
     fontSize: '12px',
     whiteSpace: 'nowrap',
     pointerEvents: 'none',
-    border: '1px solid #8b5cf6',
+    border: '1px solid #a1a1aa',
     transition: 'opacity 0.2s ease-in-out'
   };
 
@@ -602,7 +625,7 @@ function LoadScriptDemo() {
     right: '20px',
     fontFamily: 'monospace',
     fontSize: '18px',
-    color: '#8b5cf6',
+    color: '#a1a1aa',
     userSelect: 'none',
     cursor: 'pointer',
     zIndex: 10
@@ -632,11 +655,11 @@ function LoadScriptDemo() {
     fontSize: '12px',
     fontWeight: '500',
     color: 'white',
-    backgroundColor: '#8b5cf6',
+    backgroundColor: '#a1a1aa',
     border: 'none',
     borderRadius: '6px',
     cursor: 'pointer',
-    boxShadow: '0 0 10px rgba(139, 92, 246, 0.3)',
+    boxShadow: '0 0 10px rgba(161, 161, 170, 0.3)',
     transition: 'all 0.2s ease'
   };
 
@@ -644,18 +667,18 @@ function LoadScriptDemo() {
   if (!isFullTab) {
     return (
       <div ref={containerRef} style={compactWrapperStyle}>
-        <dc.Icon icon="package" style={{ fontSize: '48px', color: '#8b5cf6' }} />
+        <dc.Icon icon="package" style={{ fontSize: '48px', color: '#a1a1aa' }} />
         <p style={compactTextStyle}>LoadScript component in compact mode.</p>
         <button 
           style={compactButtonStyle} 
           onClick={() => setIsFullTab(true)}
           onMouseEnter={(e) => {
-            e.target.style.backgroundColor = '#a78bfa';
-            e.target.style.boxShadow = '0 0 15px rgba(139, 92, 246, 0.5)';
+            e.target.style.backgroundColor = '#d4d4d8';
+            e.target.style.boxShadow = '0 0 15px rgba(161, 161, 170, 0.5)';
           }}
           onMouseLeave={(e) => {
-            e.target.style.backgroundColor = '#8b5cf6';
-            e.target.style.boxShadow = '0 0 10px rgba(139, 92, 246, 0.3)';
+            e.target.style.backgroundColor = '#a1a1aa';
+            e.target.style.boxShadow = '0 0 10px rgba(161, 161, 170, 0.3)';
           }}
         >
           <dc.Icon icon="maximize" style={{ fontSize: '14px', marginRight: '6px', verticalAlign: 'middle' }} />
@@ -681,8 +704,8 @@ function LoadScriptDemo() {
           </span>
         </div>
 
-        <h2 style={{ color: 'white', textShadow: '0 0 10px rgba(139, 92, 246, 0.5)', display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <dc.Icon icon="package" style={{ fontSize: '32px', color: '#8b5cf6' }} />
+        <h2 style={{ color: 'white', textShadow: '0 0 10px rgba(161, 161, 170, 0.5)', display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <dc.Icon icon="package" style={{ fontSize: '32px', color: '#a1a1aa' }} />
           LoadScript Upgrade - Library Manager
         </h2>
       <p style={{ color: '#9ca3af', marginBottom: '20px' }}>
@@ -694,8 +717,8 @@ function LoadScriptDemo() {
         <div style={{
           ...cardStyle,
           backgroundColor: '#1a1a1a',
-          border: '2px solid #8b5cf6',
-          boxShadow: '0 0 20px rgba(139, 92, 246, 0.4)',
+          border: '2px solid #a1a1aa',
+          boxShadow: '0 0 20px rgba(161, 161, 170, 0.4)',
           marginBottom: '20px',
           animation: 'pulse 2s ease-in-out infinite'
         }}>
@@ -715,11 +738,11 @@ function LoadScriptDemo() {
               display: 'flex',
               alignItems: 'center'
             }}>
-              <dc.Icon icon="loader" style={{ fontSize: '32px', color: '#8b5cf6' }} />
+              <dc.Icon icon="loader" style={{ fontSize: '32px', color: '#a1a1aa' }} />
             </div>
             <div style={{ flex: 1 }}>
               <h3 style={{ margin: '0 0 8px 0', color: 'white', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <dc.Icon icon="download" style={{ fontSize: '20px', color: '#8b5cf6' }} />
+                <dc.Icon icon="download" style={{ fontSize: '20px', color: '#a1a1aa' }} />
                 Loading {loadingLibrary}...
               </h3>
               <p style={{ margin: 0, color: '#9ca3af', fontSize: '14px' }}>
@@ -745,8 +768,8 @@ function LoadScriptDemo() {
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', marginBottom: '20px' }}>
         {/* Classic Scripts Presets */}
         <div style={cardStyle}>
-          <h3 style={{ marginTop: 0, color: 'white', borderBottom: '1px solid #8b5cf6', paddingBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <dc.Icon icon="scroll" style={{ fontSize: '20px', color: '#8b5cf6' }} />
+          <h3 style={{ marginTop: 0, color: 'white', borderBottom: '1px solid #a1a1aa', paddingBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <dc.Icon icon="scroll" style={{ fontSize: '20px', color: '#a1a1aa' }} />
             Classic Scripts
           </h3>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -756,16 +779,17 @@ function LoadScriptDemo() {
                 style={buttonStyle} 
                 onClick={() => loadLibrary(lib)}
                 onMouseEnter={(e) => {
-                  e.target.style.backgroundColor = '#2d1f3d';
-                  e.target.style.boxShadow = '0 0 15px rgba(139, 92, 246, 0.5)';
+                  e.target.style.backgroundColor = '#27272a';
+                  e.target.style.boxShadow = '0 0 15px rgba(161, 161, 170, 0.5)';
                 }}
                 onMouseLeave={(e) => {
                   e.target.style.backgroundColor = '#1a1a1a';
-                  e.target.style.boxShadow = '0 0 10px rgba(139, 92, 246, 0.3)';
+                  e.target.style.boxShadow = '0 0 10px rgba(161, 161, 170, 0.3)';
                 }}
               >
-                <dc.Icon icon="download" style={{ fontSize: '14px', marginRight: '6px', verticalAlign: 'middle' }} />
+                <dc.Icon icon={cachedStatus[lib.url] ? "check-circle" : "download"} style={{ fontSize: '14px', marginRight: '6px', verticalAlign: 'middle', color: cachedStatus[lib.url] ? '#4ade80' : 'inherit' }} />
                 {lib.name}
+                {cachedStatus[lib.url] && <span style={{fontSize: '10px', marginLeft: '6px', color: '#4ade80'}}>(Cached)</span>}
               </button>
             ))}
           </div>
@@ -773,8 +797,8 @@ function LoadScriptDemo() {
 
         {/* ESM Modules Presets */}
         <div style={cardStyle}>
-          <h3 style={{ marginTop: 0, color: 'white', borderBottom: '1px solid #8b5cf6', paddingBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <dc.Icon icon="package" style={{ fontSize: '20px', color: '#8b5cf6' }} />
+          <h3 style={{ marginTop: 0, color: 'white', borderBottom: '1px solid #a1a1aa', paddingBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <dc.Icon icon="package" style={{ fontSize: '20px', color: '#a1a1aa' }} />
             ESM Modules
           </h3>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -784,16 +808,17 @@ function LoadScriptDemo() {
                 style={buttonStyle} 
                 onClick={() => loadLibrary(lib)}
                 onMouseEnter={(e) => {
-                  e.target.style.backgroundColor = '#2d1f3d';
-                  e.target.style.boxShadow = '0 0 15px rgba(139, 92, 246, 0.5)';
+                  e.target.style.backgroundColor = '#27272a';
+                  e.target.style.boxShadow = '0 0 15px rgba(161, 161, 170, 0.5)';
                 }}
                 onMouseLeave={(e) => {
                   e.target.style.backgroundColor = '#1a1a1a';
-                  e.target.style.boxShadow = '0 0 10px rgba(139, 92, 246, 0.3)';
+                  e.target.style.boxShadow = '0 0 10px rgba(161, 161, 170, 0.3)';
                 }}
               >
-                <dc.Icon icon="download" style={{ fontSize: '14px', marginRight: '6px', verticalAlign: 'middle' }} />
+                <dc.Icon icon={cachedStatus[lib.url] ? "check-circle" : "download"} style={{ fontSize: '14px', marginRight: '6px', verticalAlign: 'middle', color: cachedStatus[lib.url] ? '#4ade80' : 'inherit' }} />
                 {lib.name}
+                {cachedStatus[lib.url] && <span style={{fontSize: '10px', marginLeft: '6px', color: '#4ade80'}}>(Cached)</span>}
               </button>
             ))}
           </div>
@@ -802,8 +827,8 @@ function LoadScriptDemo() {
 
       {/* Custom Library Loader */}
       <div style={cardStyle}>
-        <h3 style={{ marginTop: 0, color: 'white', borderBottom: '1px solid #8b5cf6', paddingBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <dc.Icon icon="wrench" style={{ fontSize: '20px', color: '#8b5cf6' }} />
+        <h3 style={{ marginTop: 0, color: 'white', borderBottom: '1px solid #a1a1aa', paddingBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <dc.Icon icon="wrench" style={{ fontSize: '20px', color: '#a1a1aa' }} />
           Load Custom Library
         </h3>
         <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 120px', gap: '10px', marginBottom: '10px' }}>
@@ -813,7 +838,7 @@ function LoadScriptDemo() {
             value={customUrl}
             onChange={(e) => setCustomUrl(e.target.value)}
             style={inputStyle}
-            onFocus={(e) => e.target.style.borderColor = '#8b5cf6'}
+            onFocus={(e) => e.target.style.borderColor = '#a1a1aa'}
             onBlur={(e) => e.target.style.borderColor = '#2d2d2d'}
           />
           <input
@@ -822,14 +847,14 @@ function LoadScriptDemo() {
             value={customGlobal}
             onChange={(e) => setCustomGlobal(e.target.value)}
             style={inputStyle}
-            onFocus={(e) => e.target.style.borderColor = '#8b5cf6'}
+            onFocus={(e) => e.target.style.borderColor = '#a1a1aa'}
             onBlur={(e) => e.target.style.borderColor = '#2d2d2d'}
           />
           <select 
             value={customType} 
             onChange={(e) => setCustomType(e.target.value)} 
             style={inputStyle}
-            onFocus={(e) => e.target.style.borderColor = '#8b5cf6'}
+            onFocus={(e) => e.target.style.borderColor = '#a1a1aa'}
             onBlur={(e) => e.target.style.borderColor = '#2d2d2d'}
           >
             <option value="script">Classic</option>
@@ -841,11 +866,11 @@ function LoadScriptDemo() {
           onClick={loadCustomLibrary}
           onMouseEnter={(e) => {
             e.target.style.backgroundColor = '#2d1f3d';
-            e.target.style.boxShadow = '0 0 15px rgba(139, 92, 246, 0.5)';
+            e.target.style.boxShadow = '0 0 15px rgba(161, 161, 170, 0.5)';
           }}
           onMouseLeave={(e) => {
             e.target.style.backgroundColor = '#1a1a1a';
-            e.target.style.boxShadow = '0 0 10px rgba(139, 92, 246, 0.3)';
+            e.target.style.boxShadow = '0 0 10px rgba(161, 161, 170, 0.3)';
           }}
         >
           <dc.Icon icon="plus" style={{ fontSize: '14px', marginRight: '6px', verticalAlign: 'middle' }} />
@@ -863,9 +888,9 @@ function LoadScriptDemo() {
               padding: '15px',
               borderRadius: '6px',
               marginBottom: '10px',
-              border: lib.justLoaded ? '2px solid #8b5cf6' : '1px solid #2d2d2d',
+              border: lib.justLoaded ? '2px solid #a1a1aa' : '1px solid #2d2d2d',
               boxShadow: lib.justLoaded 
-                ? '0 0 20px rgba(139, 92, 246, 0.6), 0 4px 8px rgba(0, 0, 0, 0.5)' 
+                ? '0 0 20px rgba(161, 161, 170, 0.6), 0 4px 8px rgba(0, 0, 0, 0.5)' 
                 : '0 2px 4px rgba(0, 0, 0, 0.5)',
               animation: lib.justLoaded ? 'slideIn 0.5s ease-out' : 'none',
               transition: 'all 0.3s ease'
@@ -885,7 +910,7 @@ function LoadScriptDemo() {
               {lib.justLoaded && (
                 <div style={{
                   backgroundColor: '#2d1f3d',
-                  color: '#a78bfa',
+                  color: '#d4d4d8',
                   padding: '6px 12px',
                   borderRadius: '4px',
                   fontSize: '11px',
@@ -893,7 +918,7 @@ function LoadScriptDemo() {
                   display: 'flex',
                   alignItems: 'center',
                   gap: '6px',
-                  border: '1px solid #8b5cf6'
+                  border: '1px solid #a1a1aa'
                 }}>
                   <dc.Icon icon="check-circle" style={{ fontSize: '14px' }} />
                   <strong>Just Loaded!</strong> • {lib.fullTimestamp}
@@ -901,7 +926,7 @@ function LoadScriptDemo() {
               )}
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '10px' }}>
                 <div>
-                  <h4 style={{ margin: '0 0 5px 0', color: '#a78bfa', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <h4 style={{ margin: '0 0 5px 0', color: '#d4d4d8', display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <dc.Icon icon={lib.type === 'module' ? 'package' : 'scroll'} style={{ fontSize: '18px' }} />
                     {lib.name}
                   </h4>
@@ -914,16 +939,16 @@ function LoadScriptDemo() {
                     style={{
                       ...smallButtonStyle, 
                       backgroundColor: expandedLibrary === index ? '#2d1f3d' : '#0a0a0a',
-                      border: expandedLibrary === index ? '1px solid #8b5cf6' : '1px solid #6b21a8'
+                      border: expandedLibrary === index ? '1px solid #a1a1aa' : '1px solid #3f3f46'
                     }} 
                     onClick={() => toggleExplorer(index)}
                     onMouseEnter={(e) => {
                       e.target.style.backgroundColor = '#2d1f3d';
-                      e.target.style.boxShadow = '0 0 10px rgba(139, 92, 246, 0.4)';
+                      e.target.style.boxShadow = '0 0 10px rgba(161, 161, 170, 0.4)';
                     }}
                     onMouseLeave={(e) => {
                       e.target.style.backgroundColor = expandedLibrary === index ? '#2d1f3d' : '#0a0a0a';
-                      e.target.style.boxShadow = '0 0 5px rgba(107, 33, 168, 0.2)';
+                      e.target.style.boxShadow = '0 0 5px rgba(63, 63, 70, 0.2)';
                     }}
                   >
                     <dc.Icon icon={expandedLibrary === index ? 'eye-off' : 'eye'} style={{ fontSize: '11px', marginRight: '4px', verticalAlign: 'middle' }} />
@@ -939,8 +964,8 @@ function LoadScriptDemo() {
                     }}
                     onMouseLeave={(e) => {
                       e.target.style.backgroundColor = '#0a0a0a';
-                      e.target.style.border = '1px solid #6b21a8';
-                      e.target.style.boxShadow = '0 0 5px rgba(107, 33, 168, 0.2)';
+                      e.target.style.border = '1px solid #3f3f46';
+                      e.target.style.boxShadow = '0 0 5px rgba(63, 63, 70, 0.2)';
                     }}
                   >
                     <dc.Icon icon="trash-2" style={{ fontSize: '11px', marginRight: '4px', verticalAlign: 'middle' }} />
@@ -954,7 +979,7 @@ function LoadScriptDemo() {
                   <div style={{ marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
                     <dc.Icon icon="link" style={{ fontSize: '12px', color: '#9ca3af' }} />
                     <strong style={{ color: '#9ca3af' }}>URL:</strong> 
-                    <span style={{ color: '#8b5cf6', fontSize: '11px', wordBreak: 'break-all' }}>{lib.url}</span>
+                    <span style={{ color: '#a1a1aa', fontSize: '11px', wordBreak: 'break-all' }}>{lib.url}</span>
                   </div>
                   {lib.global && (
                     <div style={{ marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
@@ -983,7 +1008,7 @@ function LoadScriptDemo() {
                         </div>
                         {lib.details.functions?.length > 0 && (
                           <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                            <dc.Icon icon="function-square" style={{ fontSize: '14px', color: '#a78bfa' }} />
+                            <dc.Icon icon="function-square" style={{ fontSize: '14px', color: '#d4d4d8' }} />
                             <span style={{ color: '#9ca3af' }}>Functions: <strong style={{ color: 'white' }}>{lib.details.functions.length}</strong></span>
                           </div>
                         )}
@@ -1006,7 +1031,7 @@ function LoadScriptDemo() {
                   {lib.type === 'module' && lib.details.exports && (
                     <>
                       <div style={{ marginTop: '10px', marginBottom: '5px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                        <dc.Icon icon="layers" style={{ fontSize: '14px', color: '#8b5cf6' }} />
+                        <dc.Icon icon="layers" style={{ fontSize: '14px', color: '#a1a1aa' }} />
                         <strong style={{ color: '#9ca3af' }}>Detailed Exports:</strong>
                       </div>
                       <div style={{ display: 'flex', gap: '15px', flexWrap: 'wrap', marginLeft: '10px' }}>
@@ -1034,7 +1059,7 @@ function LoadScriptDemo() {
                         )}
                         {lib.details.constants?.length > 0 && (
                           <div>
-                            <div style={{ color: '#a78bfa', fontSize: '11px', fontWeight: 'bold', marginBottom: '4px' }}>
+                            <div style={{ color: '#d4d4d8', fontSize: '11px', fontWeight: 'bold', marginBottom: '4px' }}>
                               <dc.Icon icon="tag" style={{ fontSize: '10px', marginRight: '4px' }} />
                               Constants ({lib.details.constants.length}):
                             </div>
@@ -1050,7 +1075,7 @@ function LoadScriptDemo() {
                   {lib.type === 'script' && lib.details.properties && (
                     <>
                       <div style={{ marginTop: '10px', marginBottom: '5px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                        <dc.Icon icon="info" style={{ fontSize: '14px', color: '#8b5cf6' }} />
+                        <dc.Icon icon="info" style={{ fontSize: '14px', color: '#a1a1aa' }} />
                         <strong style={{ color: '#9ca3af' }}>Library Details:</strong>
                       </div>
                       <div style={{ marginLeft: '10px', color: '#6b7280', fontSize: '11px' }}>
@@ -1059,7 +1084,7 @@ function LoadScriptDemo() {
                           Type: <strong style={{ color: 'white' }}>{lib.details.type}</strong>
                         </div>}
                         {lib.details.constructor && <div style={{ marginBottom: '4px' }}>
-                          <dc.Icon icon="cpu" style={{ fontSize: '10px', marginRight: '6px', color: '#a78bfa' }} />
+                          <dc.Icon icon="cpu" style={{ fontSize: '10px', marginRight: '6px', color: '#d4d4d8' }} />
                           Constructor: <strong style={{ color: 'white' }}>{lib.details.constructor}</strong>
                         </div>}
                         {lib.details.hasPrototype && <div style={{ marginBottom: '4px' }}>
@@ -1069,13 +1094,13 @@ function LoadScriptDemo() {
                         {lib.details.properties && (
                           <div style={{ marginTop: '8px', padding: '8px', backgroundColor: '#0a0a0a', borderRadius: '3px', border: '1px solid #2d2d2d' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '6px' }}>
-                              <dc.Icon icon="list" style={{ fontSize: '12px', color: '#8b5cf6' }} />
+                              <dc.Icon icon="list" style={{ fontSize: '12px', color: '#a1a1aa' }} />
                               <span style={{ color: '#9ca3af', fontSize: '11px', fontWeight: 'bold' }}>
                                 Properties ({lib.details.propertyCount} total)
                               </span>
                             </div>
                             <div style={{ 
-                              color: '#a78bfa', 
+                              color: '#d4d4d8', 
                               fontSize: '10px', 
                               lineHeight: '1.6',
                               maxHeight: '120px',
@@ -1108,9 +1133,9 @@ function LoadScriptDemo() {
         </div>
       )}
 
-      <div style={{ ...cardStyle, backgroundColor: '#0a0a0a', border: '1px solid #8b5cf6' }}>
+      <div style={{ ...cardStyle, backgroundColor: '#0a0a0a', border: '1px solid #a1a1aa' }}>
         <h4 style={{ color: 'white', marginTop: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <dc.Icon icon="sparkles" style={{ fontSize: '20px', color: '#8b5cf6' }} />
+          <dc.Icon icon="sparkles" style={{ fontSize: '20px', color: '#a1a1aa' }} />
           Features
         </h4>
         <ul style={{ fontSize: '13px', color: '#9ca3af', margin: '10px 0', paddingLeft: '20px' }}>

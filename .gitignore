@@ -1,0 +1,4 @@
+data/cache/scripts/*
+!data/cache/scripts/.gitkeep
+data/cache/images/*
+!data/cache/images/.gitkeep
