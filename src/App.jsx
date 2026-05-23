@@ -102,30 +102,7 @@ function LoadScriptDemo() {
     };
   }, [isFullTab]);
 
-  // Predefined library presets
-  // Check which presets are already cached
-  dc.useEffect(() => {
-    const checkCache = async () => {
-      const adapter = dc.app.vault.adapter;
-      const cacheDir = dc.resolvePath("LOAD SCRIPT/data/cache/scripts");
-      const statusObj = {};
-      
-      const allPresets = [...presets.classic, ...presets.esm];
-      for (const lib of allPresets) {
-        if (/^https?:\/\//.test(lib.url)) {
-          const safeFilename = lib.url.replace(/^https?:\/\//, '').replace(/[\/\\?%*:|"<>]/g, '_') + '.js';
-          const cachePath = `${cacheDir}/${safeFilename}`;
-          if (await adapter.exists(cachePath)) {
-            statusObj[lib.url] = true;
-          }
-        }
-      }
-      setCachedStatus(statusObj);
-    };
-    checkCache();
-  }, [dc, presets.classic.length, presets.esm.length]);
-
-  const presets = {
+  // Predefined library presetsconst presets = {
     classic: [
       { name: 'Globe.gl', url: 'https://unpkg.com/globe.gl', global: 'Globe', type: 'script' },
       { name: 'Three.js', url: 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js', global: 'THREE', type: 'script' },
@@ -234,6 +211,29 @@ function LoadScriptDemo() {
       setLoadingProgress('');
     }
   };
+
+  
+  // Check which presets are already cached
+  dc.useEffect(() => {
+    const checkCache = async () => {
+      const adapter = dc.app.vault.adapter;
+      const cacheDir = dc.resolvePath("LOAD SCRIPT/data/cache/scripts");
+      const statusObj = {};
+      
+      const allPresets = [...presets.classic, ...presets.esm];
+      for (const lib of allPresets) {
+        if (/^https?:\/\//.test(lib.url)) {
+          const safeFilename = lib.url.replace(/^https?:\/\//, '').replace(/[\/\\?%*:|"<>]/g, '_') + '.js';
+          const cachePath = `${cacheDir}/${safeFilename}`;
+          if (await adapter.exists(cachePath)) {
+            statusObj[lib.url] = true;
+          }
+        }
+      }
+      setCachedStatus(statusObj);
+    };
+    checkCache();
+  }, [dc, presets.classic.length, presets.esm.length]);
 
   const loadCustomLibrary = async () => {
     if (!customUrl) {
