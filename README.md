@@ -56,7 +56,7 @@ The package exposes the following compiled files:
 | File | Description |
 | :--- | :--- |
 | **[`LOAD SCRIPT.md`](LOAD%20SCRIPT.md)** | The main entry point leaf designed to be loaded inside Obsidian panes. |
-| **[`src/index.jsx`](src/index.jsx)** | Main bootstrap application loader and polling invalidation daemon. |
+| **[`src/index.jsx`](_RESOURCES/DATACORE/_DONE/LOAD%20SCRIPT/src/index.jsx)** | Main bootstrap application loader and polling invalidation daemon. |
 | **[`src/App.jsx`](src/App.jsx)** | The interactive Sandbox UI Coordinator and Object Explorer interface. |
 | **[`src/LoadScriptUpgrade.js`](src/LoadScriptUpgrade.js)** | Core fetching, deduplication, and local caching script library logic. |
 | **[`data/mcp_commands.json`](data/mcp_commands.json)** | Local polling payload for HMR invalidation. |
