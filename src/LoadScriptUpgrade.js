@@ -101,6 +101,24 @@ async function loadScript(dc, src, options = {}) {
           }
         }
 
+        // If not in custom cache but exists in the default cache folder, copy it over
+        if (scriptContent === null && cacheDir) {
+          const defaultCacheDir = dc.resolvePath("LOAD SCRIPT/data/cache/scripts");
+          const defaultCachePath = `${defaultCacheDir}/${safeFilename}`;
+          if (await adapter.exists(defaultCachePath)) {
+            console.log(`[LoadScript] 🚚 Copying CDN file from default cache to custom location: ${cachePath}`);
+            try {
+              scriptContent = await adapter.read(defaultCachePath);
+              if (!(await adapter.exists(resolvedCacheDir))) {
+                await adapter.mkdir(resolvedCacheDir);
+              }
+              await adapter.write(cachePath, scriptContent);
+            } catch (copyError) {
+              console.warn(`[LoadScript] ⚠️ Copying default cache failed:`, copyError);
+            }
+          }
+        }
+
         // Fetch from network if not cached
         if (scriptContent === null) {
           console.log(`[LoadScript] 🌐 Fetching from network: ${src}`);
