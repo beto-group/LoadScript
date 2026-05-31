@@ -45,6 +45,7 @@ async function loadScript(dc, src, options = {}) {
     type = 'script',
     globalName = null,
     cache = true,
+    cacheDir = null, // Custom cache directory
     onload = null,
     onerror = null
   } = options;
@@ -57,7 +58,8 @@ async function loadScript(dc, src, options = {}) {
   }
 
   const adapter = dc.app.vault.adapter;
-  const cacheDir = dc.resolvePath("LOAD SCRIPT/data/cache/scripts");
+  // Resolve custom cacheDir or default to LOAD SCRIPT local path
+  const resolvedCacheDir = cacheDir ? dc.resolvePath(cacheDir) : dc.resolvePath("LOAD SCRIPT/data/cache/scripts");
   const isUrl = /^https?:\/\//.test(src);
 
   // --- GLOBAL DEDUPLICATION CHECK ---
@@ -87,7 +89,7 @@ async function loadScript(dc, src, options = {}) {
         const safeFilename = src
           .replace(/^https?:\/\//, '')
           .replace(/[\/\\?%*:|"<>]/g, '_') + '.js';
-        const cachePath = `${cacheDir}/${safeFilename}`;
+        const cachePath = `${resolvedCacheDir}/${safeFilename}`;
 
         // Check cache first
         if (cache && await adapter.exists(cachePath)) {
@@ -113,8 +115,8 @@ async function loadScript(dc, src, options = {}) {
           // Write to cache
           if (cache) {
             try {
-              if (!(await adapter.exists(cacheDir))) {
-                await adapter.mkdir(cacheDir);
+              if (!(await adapter.exists(resolvedCacheDir))) {
+                await adapter.mkdir(resolvedCacheDir);
               }
               console.log(`[LoadScript] 💾 Caching to: ${cachePath}`);
               await adapter.write(cachePath, scriptContent);
@@ -139,18 +141,12 @@ async function loadScript(dc, src, options = {}) {
         // ESM MODULE LOADING
         console.log(`[LoadScript] 🎭 Loading as ESM module...`);
         
-        // For ESM modules, we should directly import from the URL instead of using blob
-        // This allows the browser to properly resolve module imports
         try {
           let moduleExports;
           
-          if (isUrl) {
-            // For URLs, import directly - the CDN handles resolution
-            console.log(`[LoadScript] 📦 Importing from URL: ${src}`);
-            moduleExports = await import(src);
-          } else {
-            // For local files, we need to create a blob URL
-            console.log(`[LoadScript] 📦 Importing from blob...`);
+          // If we have cached scriptContent, load it via Blob URL for offline-first execution
+          if (scriptContent) {
+            console.log(`[LoadScript] 📦 Importing from blob URL...`);
             const blob = new Blob([scriptContent], { type: 'application/javascript' });
             const blobUrl = URL.createObjectURL(blob);
             
@@ -159,6 +155,12 @@ async function loadScript(dc, src, options = {}) {
             } finally {
               URL.revokeObjectURL(blobUrl);
             }
+          } else if (isUrl) {
+            // Fallback to direct import if scriptContent fetch failed
+            console.log(`[LoadScript] 📦 Importing from URL directly: ${src}`);
+            moduleExports = await import(src);
+          } else {
+            throw new Error("No script content available to construct module blob");
           }
           
           console.log(`[LoadScript] ✅ Module loaded successfully`);
