@@ -59,7 +59,7 @@ async function loadScript(dc, src, options = {}) {
 
   const adapter = dc.app.vault.adapter;
   // Resolve custom cacheDir or default to LOAD SCRIPT local path
-  const resolvedCacheDir = cacheDir ? dc.resolvePath(cacheDir) : dc.resolvePath("LOAD SCRIPT/data/cache/scripts");
+  const resolvedCacheDir = cacheDir ? dc.resolvePath(cacheDir) : dc.resolvePath("_RESOURCES/DATACORE/_DONE/LOAD SCRIPT/data/cache/scripts");
   const isUrl = /^https?:\/\//.test(src);
 
   // --- GLOBAL DEDUPLICATION CHECK ---
@@ -103,7 +103,7 @@ async function loadScript(dc, src, options = {}) {
 
         // If not in custom cache but exists in the default cache folder, copy it over
         if (scriptContent === null && cacheDir) {
-          const defaultCacheDir = dc.resolvePath("LOAD SCRIPT/data/cache/scripts");
+          const defaultCacheDir = dc.resolvePath("_RESOURCES/DATACORE/_DONE/LOAD SCRIPT/data/cache/scripts");
           const defaultCachePath = `${defaultCacheDir}/${safeFilename}`;
           if (await adapter.exists(defaultCachePath)) {
             console.log(`[LoadScript] 🚚 Copying CDN file from default cache to custom location: ${cachePath}`);
@@ -291,7 +291,7 @@ async function loadMultiple(dc, scripts, parallel = false) {
  * @returns {Promise<string>} A promise that resolves with a local blob URL for the image.
  */
 async function fetchAndCacheImage(dc, url) {
-  const cacheDir = dc.resolvePath("LOAD SCRIPT/data/cache/images");
+  const cacheDir = dc.resolvePath("_RESOURCES/DATACORE/_DONE/LOAD SCRIPT/data/cache/images");
   const adapter = dc.app.vault.adapter;
 
   const safeFilename = url.replace(/^https?:\/\//, '').replace(/[\/\\?%*:|"<>]/g, '_');

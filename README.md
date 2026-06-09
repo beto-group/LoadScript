@@ -57,9 +57,9 @@ The package exposes the following compiled files:
 | :--- | :--- |
 | **[`LOAD SCRIPT.md`](LOAD%20SCRIPT.md)** | The main entry point leaf designed to be loaded inside Obsidian panes. |
 | **[`src/index.jsx`](_RESOURCES/DATACORE/_DONE/LOAD%20SCRIPT/src/index.jsx)** | Main bootstrap application loader and polling invalidation daemon. |
-| **[`src/App.jsx`](src/App.jsx)** | The interactive Sandbox UI Coordinator and Object Explorer interface. |
+| **[`src/App.jsx`](_RESOURCES/DATACORE/_DONE/LOAD%20SCRIPT/src/App.jsx)** | The interactive Sandbox UI Coordinator and Object Explorer interface. |
 | **[`src/LoadScriptUpgrade.js`](src/LoadScriptUpgrade.js)** | Core fetching, deduplication, and local caching script library logic. |
-| **[`data/mcp_commands.json`](data/mcp_commands.json)** | Local polling payload for HMR invalidation. |
-| **[`METADATA.md`](METADATA.md)** | Packaging manifest outlining indexing, target, and security configurations. |
-| **[`CONTRIBUTION.md`](CONTRIBUTION.md)** | Contributor architecture standards and local compilation guidelines. |
-| **[`LICENSE.md`](LICENSE.md)** | MIT open-source license. |
+| **[`data/mcp_commands.json`](_RESOURCES/DATACORE/_DONE/LOAD%20SCRIPT/data/mcp_commands.json)** | Local polling payload for HMR invalidation. |
+| **[`METADATA.md`](_RESOURCES/DATACORE/_DONE/LOAD%20SCRIPT/METADATA.md)** | Packaging manifest outlining indexing, target, and security configurations. |
+| **[`CONTRIBUTION.md`](_RESOURCES/DATACORE/_DONE/LOAD%20SCRIPT/CONTRIBUTION.md)** | Contributor architecture standards and local compilation guidelines. |
+| **[`LICENSE.md`](_RESOURCES/DATACORE/_DONE/LOAD%20SCRIPT/LICENSE.md)** | MIT open-source license. |

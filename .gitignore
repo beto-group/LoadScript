@@ -1,4 +1,2 @@
-data/cache/scripts/*
-!data/cache/scripts/.gitkeep
-data/cache/images/*
-!data/cache/images/.gitkeep
+# Ignore runtime cache folder completely
+data/cache/
